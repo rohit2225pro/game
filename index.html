@@ -341,13 +341,11 @@
                 <label>Choose Your Character:</label>
                 <div class="character-selection">
                     <div class="character-card selected" id="rohitCard" data-character="rohit">
-                        <!-- Corrected image path to be relative -->
-                        <img src="./images/rohit.png" alt="Rohit Character">
+                        <img src="/images/rohit.png" alt="Rohit Character">
                         <p>Rohit</p>
                     </div>
                     <div class="character-card" id="venlaCard" data-character="venla">
-                        <!-- Corrected image path to be relative -->
-                        <img src="./images/venla.png" alt="Venla Character">
+                        <img src="/images/venla.png" alt="Venla Character">
                         <p>Venla</p>
                     </div>
                 </div>
@@ -375,7 +373,6 @@
 
         <div class="end-screen" id="endScreen" style="display:none;">
             <h2 id="endMessage"></h2>
-            <!-- Corrected end animation image paths to be relative -->
             <img id="endAnimation" src="" alt="Game End Animation">
             <button id="downloadCertificateBtn">Download Certificate</button>
             <button id="restartGameBtn">Play Again</button>
@@ -385,8 +382,7 @@
             <div class="certificate-container" id="certificate">
                 <h2>Certificate of Love</h2>
                 <p>This certifies that <strong><span id="certPlayerName"></span></strong> has proven their love for <strong><span id="certPartnerName"></span></strong> by collecting <br><strong><span id="certScore"></span> hearts!</strong></p>
-                <!-- Corrected heart image path to be relative -->
-                <img id="certImage" src="./images/heart.png" alt="Heart">
+                <img id="certImage" src="/images/heart.png" alt="Heart">
                 <p>A bond as strong as this is unbreakable.</p>
             </div>
             <button id="backToMenuBtn">Back to Menu</button>
@@ -440,15 +436,15 @@
 
             // Corrected the image paths to be relative to the uploaded files
             const characterImages = {
-                rohit: './images/rohit.png',
-                venla: './images/venla.png'
+                rohit: '/images/rohit.png',
+                venla: '/images/venla.png'
             };
             const endAnimations = {
                 // Changed the win and lose animation file names as requested
-                win: './images/win_animation.gif',
-                lose: './images/lose_animation.gif'
+                win: '/images/win_animation.gif',
+                lose: '/images/lose_animation.gif'
             };
-            const heartImage = './images/heart.png';
+            const heartImage = '/images/heart.png';
 
             // Listen for character selection clicks
             rohitCard.addEventListener('click', () => {
