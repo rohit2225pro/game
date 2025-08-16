@@ -506,6 +506,8 @@
                 gameArea.appendChild(heart);
 
                 let top = -30;
+                let alreadyTriggered = false;
+                
                 const fallInterval = setInterval(() => {
                     if (isGameOver) {
                         clearInterval(fallInterval);
@@ -514,9 +516,11 @@
                     }
                     top += 1.5;
                     heart.style.top = `${top}px`;
-                    if (top > gameArea.clientHeight) {
+                    if (top > gameArea.clientHeight && !alreadyTriggered) {
+                        alreadyTriggered = true;
                         clearInterval(fallInterval);
                         heart.remove();
+                        document.querySelectorAll('.heart').forEach(h => h.remove());
                         gameOver(isInfiniteMode);
                     }
                 }, 10);
@@ -530,9 +534,13 @@
                 if (isGameOver) return;
                 heartsCollected++;
                 updateHeartsDisplay();
-                this.remove();
+                e.target.style.transform = 'scale(1.5)';
+                e.target.style.opacity = '0';
+                setTimeout(() => e.target.remove(), 200);
+                
                 
                 if (!isInfiniteMode && heartsCollected >= targetHearts) {
+                    document.querySelectorAll('.heart').forEach(h => h.remove());
                     gameOver(true);
                 }
             }
