@@ -499,7 +499,10 @@
             
             
             const createHeart = () => {
+                // Check if the game is over before creating a new heart
                 if (isGameOver) return;
+                
+                // Create a new heart element
                 const heart = document.createElement('img');
                 heart.src = heartImage;
                 heart.classList.add('heart');
@@ -508,7 +511,9 @@
 
                 let top = -30;
                 
+                // Start the heart's falling animation
                 const fallInterval = setInterval(() => {
+                    // Stop the fall if the game ends
                     if (isGameOver) {
                         clearInterval(fallInterval);
                         activeIntervals = activeIntervals.filter(i => i !== fallInterval);
@@ -516,23 +521,29 @@
                         return;
                     }
                     
+                    // Update the heart's vertical position
                     top += 1.5;
                     heart.style.top = `${top}px`;
                     
-                    // In infinite mode, heart touching ground is a WIN
+                    // Check if the heart has fallen off the screen
                     if (top > gameArea.clientHeight) {
                         clearInterval(fallInterval);
                         activeIntervals = activeIntervals.filter(i => i !== fallInterval);
                         heart.remove();
-                        if (isInfiniteMode && !isGameOver) {
+                        
+                        // If a heart falls in normal mode, the player loses
+                        if (!isInfiniteMode && !isGameOver) {
                             isGameOver = true;
                             document.querySelectorAll('.heart').forEach(h => h.remove());
-                            gameOver(true); // This is a win in infinite mode
+                            gameOver(false); // Pass false to indicate a lose condition
                         }
                     }
                 }, 10);
                 
+                // Store the interval ID to clear it later
                 activeIntervals.push(fallInterval);
+                
+                // Add event listeners for catching the heart
                 heart.addEventListener('mousedown', catchHeart);
                 heart.addEventListener('touchstart', catchHeart);
             };
@@ -546,11 +557,11 @@
                 e.target.style.opacity = '0';
                 setTimeout(() => e.target.remove(), 200);
                 
-                // Check for win condition
+                // Check for win condition in normal mode
                 if (!isInfiniteMode && heartsCollected >= targetHearts) {
                     // Clear all hearts and end the game
                     document.querySelectorAll('.heart').forEach(h => h.remove());
-                    gameOver(true);
+                    gameOver(true); // Pass true to indicate a win
                 }
             }
             
