@@ -79,9 +79,11 @@
             background: rgba(255, 255, 255, 0.7);
             padding: 5px 15px;
             border-radius: 20px;
+            display: flex; /* Use flexbox to align score info */
+            gap: 20px;
         }
 
-        .heart, .celebration-emoji {
+        .heart {
             position: absolute;
             width: 30px;
             height: 30px;
@@ -89,6 +91,11 @@
             cursor: pointer;
             z-index: 10;
             animation: fade-in 0.5s ease;
+        }
+        
+        /* New style for missed heart emoji to differentiate */
+        .missed-heart {
+            color: gray;
         }
 
         .character {
@@ -317,7 +324,7 @@
 </head>
 <body>
 
-    <audio id="backgroundMusic" src="./audio/Sugary-Sweet.mp3" autoplay loop></audio>
+    <!-- Note: External audio files cannot be loaded due to security constraints. The music toggle UI is present but non-functional. -->
     <button id="musicToggle">🎶</button>
 
     <div class="container" id="gameContainer">
@@ -340,11 +347,11 @@
                 <label>Choose Your Character:</label>
                 <div class="character-selection">
                     <div class="character-card selected" id="rohitCard" data-character="rohit">
-                        <img src="./images/rohit.png" alt="Rohit Character">
+                        <img src="https://placehold.co/100x100/ff69b4/ffffff?text=Rohit" alt="Rohit Character">
                         <p>Rohit</p>
                     </div>
                     <div class="character-card" id="venlaCard" data-character="venla">
-                        <img src="./images/venla.png" alt="Venla Character">
+                        <img src="https://placehold.co/100x100/ffc0cb/333333?text=Venla" alt="Venla Character">
                         <p>Venla</p>
                     </div>
                 </div>
@@ -362,8 +369,9 @@
 
         <div class="game-screen" id="gameScreen" style="display:none;">
             <div class="score-info">
-                Hearts Caught: <span id="heartsCaught">0</span>
+                <span>Hearts Caught: <span id="heartsCaught">0</span></span>
                 <span id="targetInfo" style="display:none;">/ <span id="heartsTarget">0</span></span>
+                <span>Missed: <span id="missedHeartsCount">0</span></span>
             </div>
             <div class="game-area" id="gameArea">
                 <img id="playerCharacter" class="character" src="" alt="Player Character">
@@ -381,7 +389,7 @@
             <div class="certificate-container" id="certificate">
                 <h2>Certificate of Love</h2>
                 <p>This certifies that <strong><span id="certPlayerName"></span></strong> has proven their love for <strong><span id="certPartnerName"></span></strong> by collecting <br><strong><span id="certScore"></span> hearts!</strong></p>
-                <img id="certImage" src="./images/heart.png" alt="Heart">
+                <img id="certImage" src="https://placehold.co/150x150/ff69b4/ffffff?text=%E2%9D%A4" alt="Heart">
                 <p>A bond as strong as this is unbreakable.</p>
             </div>
             <button id="backToMenuBtn">Back to Menu</button>
@@ -399,7 +407,6 @@
             const endScreen = document.getElementById('endScreen');
             const certificateScreen = document.getElementById('certificateScreen');
             const musicToggleBtn = document.getElementById('musicToggle');
-            const backgroundMusic = document.getElementById('backgroundMusic');
 
             const startGameBtn = document.getElementById('startGameBtn');
             const restartGameBtn = document.getElementById('restartGameBtn');
@@ -423,8 +430,13 @@
             const venlaCard = document.getElementById('venlaCard');
 
             const targetHeartsInput = document.getElementById('targetHearts');
+            
+            // New UI element for missed hearts
+            const missedHeartsCount = document.getElementById('missedHeartsCount');
 
             let heartsCollected = 0;
+            let missedHearts = 0; // Tracks missed hearts
+            const MAX_MISSED_HEARTS = 5; // The number of hearts the player can miss
             let heartGenerationInterval;
             let isGameOver = false;
             let playerCharacterImage;
@@ -433,17 +445,17 @@
             let targetHearts = 0;
             let isInfiniteMode = false;
 
-            // Corrected the image paths to be relative to the uploaded files
+            // Updated image paths to use placeholders
             const characterImages = {
-                rohit: './images/rohit.png',
-                venla: './images/venla.png'
+                rohit: 'https://placehold.co/100x100/ff69b4/ffffff?text=Rohit',
+                venla: 'https://placehold.co/100x100/ffc0cb/333333?text=Venla'
             };
             const endAnimations = {
-                // Changed the win and lose animation file names as requested
-                win: './images/win_animation.gif',
-                lose: './images/lose_animation.gif'
+                win: 'https://placehold.co/300x200/ff69b4/ffffff?text=WIN+Animation',
+                lose: 'https://placehold.co/300x200/ffc0cb/333333?text=LOSE+Animation'
             };
-            const heartImage = './images/heart.png';
+            // Using a placeholder image for the heart
+            const heartImage = 'https://placehold.co/30x30/ff69b4/ffffff?text=%E2%9D%A4';
 
             // Listen for character selection clicks
             rohitCard.addEventListener('click', () => {
@@ -462,18 +474,15 @@
                 p2NameInput.value = 'Rohit';
             });
 
+            // Music toggle is non-functional as audio is not supported
             musicToggleBtn.addEventListener('click', () => {
-                if (backgroundMusic.paused) {
-                    backgroundMusic.play();
-                    musicToggleBtn.textContent = '🎶';
-                } else {
-                    backgroundMusic.pause();
-                    musicToggleBtn.textContent = '🔇';
-                }
+                // Audio functionality removed due to security constraints
+                // on the platform. The button remains for user experience.
             });
 
             const updateHeartsDisplay = () => {
                 heartsCaughtSpan.textContent = heartsCollected;
+                missedHeartsCount.textContent = missedHearts; // Update missed hearts display
             };
             
             const createCelebrationEmoji = () => {
@@ -516,25 +525,34 @@
                     if (top > gameArea.clientHeight) {
                         clearInterval(fallInterval);
                         heart.remove();
-                        gameOver(false);
+                        // New logic: heart reaches the bottom, increment missedHearts
+                        missedHearts++;
+                        updateHeartsDisplay();
+
+                        // Check for game over condition
+                        if (missedHearts >= MAX_MISSED_HEARTS) {
+                            gameOver(false); // Game over due to too many missed hearts
+                        }
                     }
                 }, 10);
                 
-                heart.addEventListener('mousedown', catchHeart);
-                heart.addEventListener('touchstart', catchHeart);
-            };
-            
-            function catchHeart(e) {
-                e.preventDefault();
-                if (isGameOver) return;
-                heartsCollected++;
-                updateHeartsDisplay();
-                this.remove();
+                // Use a single event listener for both mouse and touch
+                const handleCatch = (e) => {
+                    e.preventDefault();
+                    if (isGameOver) return;
+                    heartsCollected++;
+                    updateHeartsDisplay();
+                    heart.remove();
+                    
+                    // Check for win condition
+                    if (!isInfiniteMode && heartsCollected >= targetHearts) {
+                        gameOver(true);
+                    }
+                };
                 
-                if (!isInfiniteMode && heartsCollected >= targetHearts) {
-                    gameOver(true);
-                }
-            }
+                heart.addEventListener('mousedown', handleCatch);
+                heart.addEventListener('touchstart', handleCatch);
+            };
             
             const gameOver = (isWin) => {
                 isGameOver = true;
@@ -548,9 +566,9 @@
                 
                 if (isWin) {
                     if (characterSelect.value === 'rohit') {
-                                 endMessage.innerHTML = `${p2NameInput.value} kisses ${p1NameInput.value}!`;
+                        endMessage.innerHTML = `${p2NameInput.value} kisses ${p1NameInput.value}!`;
                     } else {
-                                 endMessage.innerHTML = `${p1NameInput.value} kisses ${p2NameInput.value}!`;
+                        endMessage.innerHTML = `${p1NameInput.value} kisses ${p2NameInput.value}!`;
                     }
                     endAnimation.src = endAnimations.win;
                     
@@ -565,11 +583,8 @@
                     setTimeout(() => clearInterval(emojiRainInterval), 3000);
 
                 } else {
-                    if (characterSelect.value === 'rohit') {
-                                 endMessage.innerHTML = `${p1NameInput.value} proposes, but ${p2NameInput.value} is gone!`;
-                    } else {
-                                 endMessage.innerHTML = `${p2NameInput.value} proposes, but ${p1NameInput.value} is gone!`;
-                    }
+                    // Updated message for losing
+                    endMessage.innerHTML = `You missed too many hearts! Love can be a tough game.`;
                     endAnimation.src = endAnimations.lose;
                 }
             };
@@ -590,6 +605,7 @@
                 }
 
                 heartsCollected = 0;
+                missedHearts = 0; // Reset missed hearts at the start of the game
                 isGameOver = false;
                 updateHeartsDisplay();
 
