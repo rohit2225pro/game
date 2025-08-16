@@ -519,12 +519,16 @@
                     top += 1.5;
                     heart.style.top = `${top}px`;
                     
-                    // We simply remove the heart when it falls off the screen
-                    // The game no longer ends for missing a heart.
+                    // In infinite mode, heart touching ground is a WIN
                     if (top > gameArea.clientHeight) {
                         clearInterval(fallInterval);
                         activeIntervals = activeIntervals.filter(i => i !== fallInterval);
                         heart.remove();
+                        if (isInfiniteMode && !isGameOver) {
+                            isGameOver = true;
+                            document.querySelectorAll('.heart').forEach(h => h.remove());
+                            gameOver(true); // This is a win in infinite mode
+                        }
                     }
                 }, 10);
                 
@@ -567,12 +571,7 @@
                 endScreen.style.display = 'flex';
                 
                 if (isWin) {
-                    // Winning message and animation
-                    if (characterSelect.value === 'rohit') {
-                        endMessage.innerHTML = `${p2NameInput.value} kisses ${p1NameInput.value}!`;
-                    } else {
-                        endMessage.innerHTML = `${p1NameInput.value} kisses ${p2NameInput.value}!`;
-                    }
+                    endMessage.innerHTML = `${partnerCharacterName} kisses ${playerCharacterName}!`;
                     endAnimation.src = endAnimations.win;
                     
                     // Trigger confetti effect
@@ -586,19 +585,14 @@
                     setTimeout(() => clearInterval(emojiRainInterval), 3000);
 
                 } else {
-                    // This "lose" condition is now only for debugging, as the game no longer ends on a missed heart.
-                    if (characterSelect.value === 'rohit') {
-                        endMessage.innerHTML = `${p1NameInput.value} proposes, but ${p2NameInput.value} is gone!`;
-                    } else {
-                        endMessage.innerHTML = `${p2NameInput.value} proposes, but ${p1NameInput.value} is gone!`;
-                    }
+                    endMessage.innerHTML = `${playerCharacterName} proposes, but ${partnerCharacterName} is gone!`;
                     endAnimation.src = endAnimations.lose;
                 }
             };
 
             const startGame = () => {
-                playerCharacterName = p1NameInput.value || 'Rohit';
-                partnerCharacterName = p2NameInput.value || 'Venla';
+                playerCharacterName = p1NameInput.value.trim() || 'Rohit';
+                partnerCharacterName = p2NameInput.value.trim() || 'Venla';
                 playerCharacterImage = characterImages[characterSelect.value];
                 targetHearts = parseInt(targetHeartsInput.value);
 
