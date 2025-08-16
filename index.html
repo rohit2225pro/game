@@ -496,6 +496,7 @@
                 }, 20);
             };
             
+            
             const createHeart = () => {
                 if (isGameOver) return;
                 const heart = document.createElement('img');
@@ -516,7 +517,7 @@
                     if (top > gameArea.clientHeight) {
                         clearInterval(fallInterval);
                         heart.remove();
-                        gameOver(false);
+                        gameOver(isInfiniteMode);
                     }
                 }, 10);
                 
