@@ -432,6 +432,7 @@
             let playerCharacterName;
             let targetHearts = 0;
             let isInfiniteMode = false;
+            let activeIntervals = [];
 
             // Corrected the image paths to be relative to the uploaded files
             const characterImages = {
@@ -506,25 +507,28 @@
                 gameArea.appendChild(heart);
 
                 let top = -30;
-                let alreadyTriggered = false;
                 
                 const fallInterval = setInterval(() => {
                     if (isGameOver) {
                         clearInterval(fallInterval);
+                        activeIntervals = activeIntervals.filter(i => i !== fallInterval);
                         heart.remove();
                         return;
                     }
+                    
                     top += 1.5;
                     heart.style.top = `${top}px`;
-                    if (top > gameArea.clientHeight && !alreadyTriggered) {
-                        alreadyTriggered = true;
+                    
+                    // We simply remove the heart when it falls off the screen
+                    // The game no longer ends for missing a heart.
+                    if (top > gameArea.clientHeight) {
                         clearInterval(fallInterval);
+                        activeIntervals = activeIntervals.filter(i => i !== fallInterval);
                         heart.remove();
-                        document.querySelectorAll('.heart').forEach(h => h.remove());
-                        gameOver(isInfiniteMode);
                     }
                 }, 10);
                 
+                activeIntervals.push(fallInterval);
                 heart.addEventListener('mousedown', catchHeart);
                 heart.addEventListener('touchstart', catchHeart);
             };
@@ -538,8 +542,9 @@
                 e.target.style.opacity = '0';
                 setTimeout(() => e.target.remove(), 200);
                 
-                
+                // Check for win condition
                 if (!isInfiniteMode && heartsCollected >= targetHearts) {
+                    // Clear all hearts and end the game
                     document.querySelectorAll('.heart').forEach(h => h.remove());
                     gameOver(true);
                 }
@@ -548,6 +553,12 @@
             const gameOver = (isWin) => {
                 isGameOver = true;
                 clearInterval(heartGenerationInterval);
+                
+                // Clear all active heart intervals
+                activeIntervals.forEach(interval => clearInterval(interval));
+                activeIntervals = [];
+                
+                // Remove all hearts from the screen
                 document.querySelectorAll('.heart').forEach(heart => heart.remove());
 
                 startScreen.style.display = 'none';
@@ -556,10 +567,11 @@
                 endScreen.style.display = 'flex';
                 
                 if (isWin) {
+                    // Winning message and animation
                     if (characterSelect.value === 'rohit') {
-                                 endMessage.innerHTML = `${p2NameInput.value} kisses ${p1NameInput.value}!`;
+                        endMessage.innerHTML = `${p2NameInput.value} kisses ${p1NameInput.value}!`;
                     } else {
-                                 endMessage.innerHTML = `${p1NameInput.value} kisses ${p2NameInput.value}!`;
+                        endMessage.innerHTML = `${p1NameInput.value} kisses ${p2NameInput.value}!`;
                     }
                     endAnimation.src = endAnimations.win;
                     
@@ -574,10 +586,11 @@
                     setTimeout(() => clearInterval(emojiRainInterval), 3000);
 
                 } else {
+                    // This "lose" condition is now only for debugging, as the game no longer ends on a missed heart.
                     if (characterSelect.value === 'rohit') {
-                                 endMessage.innerHTML = `${p1NameInput.value} proposes, but ${p2NameInput.value} is gone!`;
+                        endMessage.innerHTML = `${p1NameInput.value} proposes, but ${p2NameInput.value} is gone!`;
                     } else {
-                                 endMessage.innerHTML = `${p2NameInput.value} proposes, but ${p1NameInput.value} is gone!`;
+                        endMessage.innerHTML = `${p2NameInput.value} proposes, but ${p1NameInput.value} is gone!`;
                     }
                     endAnimation.src = endAnimations.lose;
                 }
